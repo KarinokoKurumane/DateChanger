@@ -5,19 +5,27 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DateChanger"
         mc:Ignorable="d"
-        Title="Accountant Solver - Date Changer" Height="450" Width="800">
+        Title="Accountant Solver - Date Changer" Height="450" Width="966" ResizeMode="NoResize">
     <Grid>
-        <ListBox x:Name="Lbx_FilesList" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="550,41,10,10" Initialized="Lbx_FilesList_Initialized"/>
+        <ListView x:Name="Lvw_FilesList" Margin="550,41,10,10" Initialized="Lvw_FilesList_Initialized">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Nazwa pliku" DisplayMemberBinding="{Binding Name}" Width="250"/>
+                    <GridViewColumn Header="Data modyfikacji" DisplayMemberBinding="{Binding LastModified}" Width="150"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
         <Label Content="Znalezione pliki:" HorizontalAlignment="Left" Margin="550,10,0,0" VerticalAlignment="Top" Width="240"/>
         <Label Content="Wybierz folder z plikami:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="240"/>
         <Button x:Name="Btn_SelectDirectory" Content="Wybierz" HorizontalAlignment="Left" Margin="278,10,0,0" VerticalAlignment="Top" Height="26" Width="122" Click="Btn_SelectDirectory_Click"/>
         <TextBox x:Name="Txb_DirectoryName" HorizontalAlignment="Left" Margin="10,41,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="535"/>
         <Label Content="Wybierz datę jaka ma być widoczna w polu ostatniej modyfikacji pliku:" HorizontalAlignment="Left" Margin="10,95,0,0" VerticalAlignment="Top" Width="390"/>
         <DatePicker x:Name="Dtp_NewDate" HorizontalAlignment="Left" Margin="10,126,0,0" VerticalAlignment="Top" Width="164" SelectedDateChanged="Dtp_NewDate_SelectedDateChanged" />
-        <TextBlock HorizontalAlignment="Left" Margin="10,175,0,0" TextWrapping="Wrap" Text="UWAGA!" VerticalAlignment="Top" Width="535" TextAlignment="Center"/>
-        <TextBlock HorizontalAlignment="Left" Margin="10,196,0,0" TextWrapping="Wrap" Text="Zmiana daty modyfikacji pliku wpłynie na każdy plik w folderze i jest to nieodwracalne. Jeśli istnieje plik, lub pliki, których nie chcesz modyfikować przenieś je do innego folderu." VerticalAlignment="Top" Width="535" Height="56" TextAlignment="Justify"/>
-        <CheckBox x:Name="Cbx_IncludeFolder" Content="Zmień datę modyfikacji folderu" HorizontalAlignment="Left" Margin="10,265,0,0" VerticalAlignment="Top" Width="195" Checked="Cbx_IncludeFolder_Checked" Unchecked="Cbx_IncludeFolder_Unchecked"/>
+        <TextBlock HorizontalAlignment="Left" Margin="10,194,0,0" TextWrapping="Wrap" Text="UWAGA!" VerticalAlignment="Top" Width="535" TextAlignment="Center"/>
+        <TextBlock HorizontalAlignment="Left" Margin="10,215,0,0" TextWrapping="Wrap" Text="Zmiana daty modyfikacji pliku wpłynie na każdy plik w folderze i jest to nieodwracalne. Jeśli istnieje plik, lub pliki, których nie chcesz modyfikować przenieś je do innego folderu." VerticalAlignment="Top" Width="535" Height="56" TextAlignment="Justify"/>
+        <CheckBox x:Name="Cbx_IncludeFolder" Content="Zmień datę modyfikacji folderu" HorizontalAlignment="Left" Margin="10,284,0,0" VerticalAlignment="Top" Width="535" Checked="Cbx_IncludeFolder_Checked" Unchecked="Cbx_IncludeFolder_Unchecked" IsEnabled="False"/>
         <Button x:Name="Btn_BeginWork" Content="Zatwierdź" HorizontalAlignment="Left" Margin="423,353,0,0" VerticalAlignment="Top" Height="26" Width="122" Click="Btn_BeginWork_Click"/>
         <TextBox x:Name="Txb_NewDate" HorizontalAlignment="Left" Margin="302,129,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="182"/>
+        <CheckBox x:Name="Cbx_IncludeFolderRoot" Content="Zmień datę modyfikacji nadrzędnego folderu" HorizontalAlignment="Left" Margin="10,304,0,0" VerticalAlignment="Top" Width="535" IsEnabled="False" Checked="Cbx_IncludeFolderRoot_Checked" Unchecked="Cbx_IncludeFolderRoot_Unchecked"/>
     </Grid>
 </Window>
