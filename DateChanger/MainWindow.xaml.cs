@@ -2,6 +2,7 @@
 using Microsoft.Win32;
 using System.Windows.Controls;
 using System.IO;
+using System.Diagnostics;
 
 namespace DateChanger
 {
@@ -10,18 +11,36 @@ namespace DateChanger
     /// </summary>
     public partial class MainWindow : Window
     {
-        private const string label_basic_folder = "Zmień datę modyfikacji folderu: ";
-        private const string label_root_folder = "Zmień datę modyfikacji folderu nadrzędnego: ";
+        private const string LABEL_BASIC_FOLDER = "Zmień datę modyfikacji folderu: ";
+        private const string LABEL_PARENT_FOLDER = "Zmień datę modyfikacji folderu nadrzędnego: ";
+        private const string BACKUP_FOLDER_NAME = "Backups";
 
+        /// <summary>
+        /// Ścieżka do folderu, w którym znajdują się pliki do zmiany daty.
+        /// </summary>
         private string folder_path = string.Empty;
+
+        /// <summary>
+        /// Ścieżka do folderu aplikacji, gdzie mogą być przechowywane backupy lub inne pliki.
+        /// </summary>
+        private string app_folder_path = string.Empty;
+
+        /// <summary>
+        /// Ścieżka do folderu, w którym będą przechowywane backupy plików w zip.
+        /// </summary>
+        private string backup_folder_path = string.Empty;
+
         private bool include_folder = false;
         private bool include_folder_root = false;
+        private bool aslways_backup = false;
+
         private DateTime? new_date = null;
         private DirectoryInfo? directory_info = null;
 
         public MainWindow()
         {
             InitializeComponent();
+            ResetMiniLog();
         }
 
         /// <summary>
@@ -39,6 +58,7 @@ namespace DateChanger
                 MessageBox.Show("Nie wybrano daty!", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
+            var __inc = 0;
             foreach (FileInfo _file in directory_info.GetFiles())
             {
                 try
@@ -54,12 +74,16 @@ namespace DateChanger
                     {
                         ChangeFolderDate(_file.Directory.Parent, new_date.Value);
                     }
+                    __inc++;
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show($"Wystąpił błąd podczas zmiany daty pliku: {_file.Name}\n{ex.Message}", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Tbx_MiniLog.Text = $"Wystąpił błąd podczas zmiany daty pliku";
+                    return;
                 }
             }
+            Tbx_MiniLog.Text = $"Zmieniono datę modyfikacji {__inc} plików.";
         }
 
         /// <summary>
@@ -119,23 +143,23 @@ namespace DateChanger
         {
             if (_di != null)
             {
-                Cbx_IncludeFolder.Content = label_basic_folder + _di.Name;
+                Cbx_IncludeFolder.Content = LABEL_BASIC_FOLDER + _di.Name;
                 Cbx_IncludeFolder.IsEnabled = true;
             }
             else
             {
-                Cbx_IncludeFolder.Content = label_basic_folder + "Brak folderu";
+                Cbx_IncludeFolder.Content = LABEL_BASIC_FOLDER + "Brak folderu";
                 Cbx_IncludeFolder.IsEnabled = false;
                 return; // Jeśli nie ma folderu, nie ustawiamy checkboxa dla folderu nadrzędnego
             }
             if (_di.Parent != null)
             {
-                Cbx_IncludeFolderRoot.Content = label_root_folder + _di.Parent.Name;
+                Cbx_IncludeFolderRoot.Content = LABEL_PARENT_FOLDER + _di.Parent.Name;
                 Cbx_IncludeFolderRoot.IsEnabled = true;
             }
             else
             {
-                Cbx_IncludeFolderRoot.Content = label_root_folder + "Brak folderu nadrzędnego";
+                Cbx_IncludeFolderRoot.Content = LABEL_PARENT_FOLDER + "Brak folderu nadrzędnego";
                 Cbx_IncludeFolderRoot.IsEnabled = false;
             }
         }
@@ -170,6 +194,7 @@ namespace DateChanger
         /// <param name="e"></param>
         private void Btn_SelectDirectory_Click(object sender, RoutedEventArgs e)
         {
+            ResetMiniLog();
             try
             {
                 OpenFolderDialog _openFolderDialog = new()
@@ -184,13 +209,15 @@ namespace DateChanger
                     BaseLogic();
                 }
             }
-            catch (UnauthorizedAccessException)
-            {
-                MessageBox.Show("Brak uprawnień do wybranego folderu. Wybierz inny folder.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
             catch (Exception ex)
             {
                 MessageBox.Show($"Wystąpił błąd podczas wyboru folderu: {ex.Message}", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                Btn_CreateBackup.IsEnabled = false;
+                return;
+            }
+            finally
+            {
+                Btn_CreateBackup.IsEnabled = true;
             }
         }
 
@@ -257,5 +284,38 @@ namespace DateChanger
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void Cbx_IncludeFolderRoot_Unchecked(object sender, RoutedEventArgs e) => include_folder_root = false;
+
+        /// <summary>
+        /// Resetuje pole tekstowe mini logu, aby było puste (no kto by się spodziewał).
+        /// </summary>
+        private void ResetMiniLog() => Tbx_MiniLog.Text = string.Empty;
+
+        /// <summary>
+        /// Wywołuje metodę tworzenia kopii zapasowej folderu w formie pliku ZIP.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Btn_CreateBackup_Click(object sender, RoutedEventArgs e) => BackupBehaviour.CreateBackupZip(new DirectoryInfo(folder_path).FullName, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, BACKUP_FOLDER_NAME));
+
+        /// <summary>
+        /// Otwiera folder kopii zapasowych w eksploratorze plików.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Btn_BackupFolder_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Process.Start("explorer.exe", "/select,"+Path.Combine(AppDomain.CurrentDomain.BaseDirectory, BACKUP_FOLDER_NAME));
+            }
+            catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 2) // ERROR_FILE_NOT_FOUND
+            {
+                MessageBox.Show("Folder kopii zapasowej nie istnieje. Proszę najpierw utworzyć kopię zapasową.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Wystąpił błąd podczas otwierania folderu kopii zapasowej: {ex.Message}", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 }
