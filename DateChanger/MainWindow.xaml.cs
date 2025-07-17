@@ -1,8 +1,8 @@
-﻿using System.Windows;
-using Microsoft.Win32;
-using System.Windows.Controls;
-using System.IO;
+﻿using Microsoft.Win32;
 using System.Diagnostics;
+using System.IO;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace DateChanger
 {
@@ -48,32 +48,12 @@ namespace DateChanger
         /// </summary>
         private void ChangeFileDateLogic()
         {
-            if (directory_info == null)
-            {
-                MessageBox.Show("Nie wybrano folderu!", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-            if (new_date == null)
-            {
-                MessageBox.Show("Nie wybrano daty!", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
             var __inc = 0;
             foreach (FileInfo _file in directory_info.GetFiles())
             {
                 try
                 {
-                    _file.LastWriteTime = new_date.Value;
-                    _file.CreationTime = new_date.Value;
-                    _file.LastAccessTime = new_date.Value;
-                    if (include_folder)
-                    {
-                        ChangeFolderDate(_file.Directory, new_date.Value);
-                    }
-                    if (include_folder_root && _file.Directory.Parent != null)
-                    {
-                        ChangeFolderDate(_file.Directory.Parent, new_date.Value);
-                    }
+                    BasicBehaviour.ChangeFileDate(_file, new_date.Value);
                     __inc++;
                 }
                 catch (Exception ex)
@@ -83,27 +63,16 @@ namespace DateChanger
                     return;
                 }
             }
+            if (include_folder)
+            {
+                BasicBehaviour.ChangeFolderDate(directory_info, new_date.Value);
+            }
+            if (include_folder_root && directory_info.Parent != null)
+            {
+                BasicBehaviour.ChangeFolderDate(directory_info.Parent, new_date.Value);
+            }
             Tbx_MiniLog.Text = $"Zmieniono datę modyfikacji {__inc} plików.";
-        }
-
-        /// <summary>
-        /// Zmienia datę modyfikacji folderu.
-        /// </summary>
-        /// <param name="_di"></param>
-        /// <param name="_dt"></param>
-        private void ChangeFolderDate(DirectoryInfo _di, DateTime _dt)
-        {
-            try
-            {
-                _di.LastWriteTime = _dt;
-                _di.CreationTime = _dt;
-                _di.LastAccessTime = _dt;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Wystąpił błąd podczas zmiany daty folderu: {_di.Name}\n{ex.Message}", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
+        }       
 
         /// <summary>
         /// Główna logika aplikacji, która jest wywoływana po wyborze folderu.
@@ -169,22 +138,10 @@ namespace DateChanger
         /// </summary>
         private void PrepareFilesList()
         {
-            List<FileItem> files = [];
-            if (directory_info == null)
+            if (directory_info != null)
             {
-                MessageBox.Show("Nie wybrano folderu!", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
+                Lvw_FilesList.ItemsSource = BasicBehaviour.GetFilesList(directory_info);
             }
-            foreach (FileInfo fi in directory_info.GetFiles())
-            {
-                files.Add(new FileItem
-                {
-                    Name = fi.Name,
-                    LastModified = fi.LastWriteTime.ToString("yyyy-MM-dd HH:mm")
-                });
-            }
-
-            Lvw_FilesList.ItemsSource = files;
         }
 
         /// <summary>
