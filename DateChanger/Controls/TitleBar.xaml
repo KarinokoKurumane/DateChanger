@@ -1,0 +1,55 @@
+﻿<UserControl x:Class="DateChanger.Controls.TitleBar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Height="32"
+             Background="#FF131313">
+
+    <Border Background="#FF131313"
+            BorderBrush="#FF262626"
+            BorderThickness="0,0,0,1"
+            SnapsToDevicePixels="True"
+            MouseDown="TitleBar_MouseDown">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,79,0">
+                <Image Source="/Assets/LOGO_U.png"
+                       Width="32"
+                       Height="32"
+                       Margin="0,0,6,0"/>
+                <TextBlock Text="ÜSoftware Asystent Księgowości"
+                           Foreground="White"
+                           FontWeight="Bold"
+                           FontSize="14"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <Grid Grid.Column="1" HorizontalAlignment="Right">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1"/>
+                    <!-- Grupa: logowanie + pomoc -->
+                    <ColumnDefinition Width="42"/>
+                    <ColumnDefinition Width="42"/>
+                    <ColumnDefinition Width="1"/>
+                    <!-- Grupa: sterowanie oknem -->
+                    <ColumnDefinition Width="42"/>
+                    <ColumnDefinition Width="42"/>
+                    <ColumnDefinition Width="42"/>
+                </Grid.ColumnDefinitions>
+                <!-- Usuń komentarz, aby przywrócić przyciski konfiguracji i pomocy, tylko kiedy będę miał czas na ich implementację (a w zasadzie to chęci)
+                <Rectangle Grid.Column="0" Height="32" Fill="#FF262626" VerticalAlignment="Center"/>
+                
+                <Button Grid.Column="1" Content="⚙" Style="{StaticResource TitleButtonStyle}" Click="Config_Click" ToolTip="Zmień ustawienia aplikacji"/>
+                <Button Grid.Column="2" Content="❔" Style="{StaticResource TitleButtonStyle}" Click="Help_Click" ToolTip="Pomoc"/>
+                
+                <Rectangle Grid.Column="3" Height="32" Fill="#FF262626" VerticalAlignment="Center"/>
+                -->
+                <Button Grid.Column="5" Content="—" Style="{StaticResource TitleButtonStyle}" Click="Minimize_Click"/>
+                <Button Grid.Column="6" Content="✖" Style="{StaticResource TitleButtonExitStyle}" Click="Close_Click"/>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

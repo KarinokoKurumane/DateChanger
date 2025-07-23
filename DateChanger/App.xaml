@@ -4,6 +4,11 @@
              xmlns:local="clr-namespace:DateChanger"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Themes/TitleButtonBasic.xaml"/>
+                <ResourceDictionary Source="Themes/TitleButtonExit.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -48,6 +48,12 @@ namespace DateChanger
         /// </summary>
         private void ChangeFileDateLogic()
         {
+            if (directory_info == null)
+            {
+                MessageBox.Show("Nie wybrano folderu!", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                Tbx_MiniLog.Text = $"Wystąpił błąd - nie wybrano folderu!";
+                return;
+            }
             var __inc = 0;
             foreach (FileInfo _file in directory_info.GetFiles())
             {
